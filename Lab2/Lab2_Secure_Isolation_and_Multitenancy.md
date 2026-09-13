@@ -76,7 +76,9 @@ After the affected pods were deleted and recreated, all `kube-system` pods stabi
 
 **Result:** Cluster fully operational with Calico CNI, which is required for `NetworkPolicy` enforcement (the default `kind` network does not enforce policies).
 
-**Evidence:** `![Cluster Ready](Lab2_01_cluster_ready.png)`
+**Evidence:**
+
+![Cluster Ready](Lab2_01_cluster_ready.png)
 
 ---
 
@@ -100,7 +102,9 @@ Both namespaces created. Each hosts an identical `web` deployment (nginx) and a 
 
 **Result:** Two tenants successfully modelled as separate namespaces on the same physical cluster infrastructure, each with their own workload and stable network endpoint.
 
-**Evidence:** `![Task 1 - Tenants Deployed](Lab2_02_task1_tenants_deployed.png)`
+**Evidence:**
+
+![Task 1 - Tenants Deployed](Lab2_02_task1_tenants_deployed.png)
 
 ---
 
@@ -120,7 +124,9 @@ HTTP 200
 
 **Result:** A pod launched in `tenant-a`'s namespace successfully reached `tenant-b`'s service and received a valid HTTP response. This confirms that **namespace separation alone does not provide network isolation** — by default, all pods in a `kind`/Calico cluster can route to one another regardless of namespace. This is the core multi-tenancy risk highlighted in Week 3: on shared infrastructure, isolation must be explicitly configured — it is never automatic.
 
-**Evidence:** `![Task 2 - Before HTTP 200](Lab2_03_task2_before_HTTP200.png)`
+**Evidence:**
+
+![Task 2 - Before HTTP 200](Lab2_03_task2_before_HTTP200.png)
 
 ---
 
@@ -155,7 +161,9 @@ requests.memory   0     512Mi
 
 **Result:** A hard resource ceiling is now enforced on `tenant-a` at the namespace level. Any workload exceeding these limits (excess CPU/memory requests or pod count) will be rejected by the Kubernetes API's admission control — preventing one tenant from exhausting shared node capacity and causing a Denial-of-Service (DoS) condition against co-located tenants. This addresses the **availability** dimension of the CIA triad, which is distinct from the confidentiality/integrity concerns addressed by network and RBAC isolation.
 
-**Evidence:** `![Task 3 - ResourceQuota](Lab2_04_task3_resourcequota.png)`
+**Evidence:**
+
+![Task 3 - ResourceQuota](Lab2_04_task3_resourcequota.png)
 
 ---
 
@@ -191,7 +199,9 @@ HTTP 000
 | Probe result | `HTTP 200` | `HTTP 000` |
 | Interpretation | Cross-tenant traffic allowed | Cross-tenant traffic blocked |
 
-**Evidence:** `![Task 4 - After HTTP 000](Lab2_05_task4_after_HTTP000.png)`
+**Evidence:**
+
+![Task 4 - After HTTP 000](Lab2_05_task4_after_HTTP000.png)
 
 ---
 
@@ -219,7 +229,9 @@ no
 
 **Result:** The ServiceAccount `app-a`, scoped via a `Role` and `RoleBinding` to only `get secrets` within `tenant-a`, is correctly **permitted** to read secrets in its own namespace but **denied** access to `tenant-b`'s secret. This demonstrates the **Principle of Least Privilege** at the Kubernetes API layer — even though both namespaces reside on the same cluster and API server, RBAC enforces per-tenant boundaries independently of network-level controls.
 
-**Evidence:** `![Task 5 - RBAC Isolation](Lab2_06_task5_rbac_isolation.png)`
+**Evidence:**
+
+![Task 5 - RBAC Isolation](Lab2_06_task5_rbac_isolation.png)
 
 ---
 
@@ -243,7 +255,9 @@ scan-done-host-level
 
 **Result:** Unlike the textbook expectation, `grep` did not recover any residual plaintext after a normal `rm` deletion in this environment. This is itself a meaningful finding: filesystem-level data remanence is **not reliably reproducible** — it depends heavily on the specific filesystem implementation (ext4 journaling, Docker's overlay driver), block reuse timing, and sync behaviour. This does **not** mean remanence is not a real risk; it means that a simple `rm` is not something to rely on for verifying deletion, and that more forensic-grade tools (e.g. `photorec`, raw disk imaging) would be needed to reliably demonstrate recovery on this particular stack.
 
-**Evidence:** `![Task 6 - Remanence Scan](Lab2_07_task6_remanence_scan.png)`
+**Evidence:**
+
+![Task 6 - Remanence Scan](Lab2_07_task6_remanence_scan.png)
 
 **Command (secure wipe):**
 ```bash
@@ -263,7 +277,9 @@ wiped
 
 **Result:** The file's contents were overwritten with zero-bytes **before** deletion, using `conv=notrunc` to ensure the write targets the same physical block rather than a newly allocated one. This "overwrite-before-delete" approach is a classic secure-deletion technique for traditional spinning disks. However, it has a well-known limitation on modern storage: **SSDs and cloud block storage use wear-levelling**, meaning the firmware may redirect writes to a different physical block rather than truly overwriting the original. This is precisely why cloud environments favour **cryptographic erasure** — destroying the encryption key rather than attempting to physically overwrite data the tenant does not have direct control over.
 
-**Evidence:** `![Task 6 - Secure Wipe](Lab2_08_task6_secure_wipe.png)`
+**Evidence:**
+
+![Task 6 - Secure Wipe](Lab2_08_task6_secure_wipe.png)
 
 ---
 
@@ -277,7 +293,9 @@ kubectl describe resourcequota tenant-a-quota -n tenant-a
 
 **Output:** Confirms `default-deny-ingress` is still active in `tenant-b`, and `tenant-a-quota` correctly reflects the patched deployment's resource usage (`requests.cpu: 100m/1`, `requests.memory: 128Mi/512Mi`, `pods: 1/5`).
 
-**Evidence:** `![Verification](Lab2_09_verification.png)`
+**Evidence:**
+
+![Verification](Lab2_09_verification.png)
 
 ---
 
