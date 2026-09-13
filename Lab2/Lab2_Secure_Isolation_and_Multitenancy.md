@@ -13,7 +13,7 @@
 | Student ID | 52215124843 |
 | Environment | Kali Linux (Rolling 2026.2) on VMware Workstation |
 | Tools Used | Docker, kind v0.23.0, kubectl v1.33.4, Calico CNI v3.27.0 |
-| GitHub Repo | [IKB42603-CLOUD-COMPUTING-SECURITY-ESSENTIALS](https://github.com/lilysvkie/IKB42603-CLOUD-COMPUTING-SECURITY-ESSENTIALS) |
+| GitHub Repo | [IKB42603-CLOUD-COMPUTING-SECURITY-ESSENTIALS](https://github.com/nurrsyafina/IKB42603-CLOUD-COMPUTING-SECURITY-ESSENTIALS) |
 
 ---
 
